@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require 'minitest/autorun'
+require 'data_class_factory'
 
 module DataClassFactory
   class VersionTest < Minitest::Test
