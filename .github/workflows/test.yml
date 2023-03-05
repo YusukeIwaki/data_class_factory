@@ -20,3 +20,18 @@ jobs:
           bundle install
       - name: Unit testing
         run: bundle exec rake test
+  rubocop:
+    name: runner / rubocop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+      - name: rubocop
+        uses: reviewdog/action-rubocop@v2
+        with:
+          github_token: ${{ secrets.github_token }}
+          rubocop_extensions: rubocop-minitest
+          reporter: github-pr-review
