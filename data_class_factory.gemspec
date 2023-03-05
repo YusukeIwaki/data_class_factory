@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.version       = DataClassFactory::VERSION
   spec.authors       = ['YusukeIwaki']
 
-  spec.summary       = 'Backport `Data.define` for Ruby < 3.2'
+  spec.summary       = 'Backport `Data.define` for Ruby 2.7, 3.0, 3.1'
   spec.homepage      = 'https://github.com/YusukeIwaki/data_class_factory'
   spec.license       = 'MIT'
 
