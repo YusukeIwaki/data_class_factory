@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 module DataClass
+  # An internal class for providing implementation of `Data.define`.
   class Factory
+    # @param attribute_names [Array<Symbol>]
     def initialize(attribute_names)
       @attribute_names = attribute_names
     end
 
+    # @param parent_class [Data]
+    # @return [Class<Data>]
     def create(parent_class:, &block)
       attribute_names = @attribute_names
 
@@ -14,23 +18,7 @@ module DataClass
 
         define_singleton_method(:members) { attribute_names }
 
-        define_method(:initialize) do |**kwargs|
-          if attribute_names - kwargs.keys != []
-            raise ArgumentError, "missing keyword: #{(attribute_names - kwargs.keys).join(', ')}"
-          end
-
-          if kwargs.keys - attribute_names != []
-            raise ArgumentError, "unknown keyword: #{(kwargs.keys - attribute_names).join(', ')}"
-          end
-
-          kwargs.each do |key, value|
-            instance_variable_set("@#{key}".to_sym, value)
-          end
-        end
-
-        unless block.nil?
-          class_eval(&block)
-        end
+        class_eval(&block) unless block.nil?
       end
     end
   end
