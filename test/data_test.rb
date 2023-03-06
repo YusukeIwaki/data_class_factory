@@ -3,7 +3,7 @@
 require 'minitest/autorun'
 require 'data_class_factory'
 
-# rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+# rubocop:disable Metrics/AbcSize, Metrics/ClassLength, Metrics/MethodLength
 class DataTest < Minitest::Test
   # https://docs.ruby-lang.org/en/3.2/Data.html
   def test_simplest_example
@@ -61,8 +61,8 @@ class DataTest < Minitest::Test
     klass = Data.define(:amount, :unit)
 
     distance = klass.new(amount: 10, unit: 'km')
-    assert_equal({:amount=>10, :unit=>"km"}, distance.deconstruct_keys(nil))
-    assert_equal({:amount=>10}, distance.deconstruct_keys([:amount]))
+    assert_equal({ amount: 10, unit: 'km' }, distance.deconstruct_keys(nil))
+    assert_equal({ amount: 10 }, distance.deconstruct_keys([:amount]))
 
     # usage
     case distance
@@ -176,12 +176,12 @@ class DataTest < Minitest::Test
     assert_equal(0, test.method(:foo).arity)
     assert_equal([], test.method(:foo).parameters)
 
-    assert_equal({foo: 1, bar: 2}, test.to_h)
-    assert_equal({"foo"=>"1", "bar"=>"2"}, test.to_h { [_1.to_s, _2.to_s] })
+    assert_equal({ foo: 1, bar: 2 }, test.to_h)
+    assert_equal({ 'foo' => '1', 'bar' => '2' }, test.to_h { [_1.to_s, _2.to_s] })
 
-    assert_equal({foo: 1, bar: 2}, test.deconstruct_keys(nil))
-    assert_equal({foo: 1}, test.deconstruct_keys(%i[foo]))
-    assert_equal({foo: 1}, test.deconstruct_keys(%i[foo baz]))
+    assert_equal({ foo: 1, bar: 2 }, test.deconstruct_keys(nil))
+    assert_equal({ foo: 1 }, test.deconstruct_keys(%i[foo]))
+    assert_equal({ foo: 1 }, test.deconstruct_keys(%i[foo baz]))
     assert_raises(TypeError) { test.deconstruct_keys(0) }
 
     assert_kind_of(Integer, test.hash)
@@ -190,15 +190,15 @@ class DataTest < Minitest::Test
   def test_inspect
     klass = Data.define(:a)
     o = klass.new(a: 1)
-    assert_equal("#<data a=1>", o.inspect)
+    assert_equal('#<data a=1>', o.inspect)
 
     Object.const_set(:Foo, klass)
-    assert_equal("#<data Foo a=1>", o.inspect)
+    assert_equal('#<data Foo a=1>', o.inspect)
     Object.instance_eval { remove_const(:Foo) }
 
     klass = Data.define(:@a)
     o = klass.new(:@a => 1)
-    assert_equal("#<data :@a=1>", o.inspect)
+    assert_equal('#<data :@a=1>', o.inspect)
   end
 
   def test_equal
@@ -229,4 +229,4 @@ class DataTest < Minitest::Test
     assert !o1.eql?(o3)
   end
 end
-# rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+# rubocop:enable Metrics/AbcSize, Metrics/ClassLength, Metrics/MethodLength

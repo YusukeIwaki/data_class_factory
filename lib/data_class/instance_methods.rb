@@ -4,7 +4,7 @@ module DataClass
   # An internal module for providing instance methods for `Data.define`.
   module InstanceMethods
     def deconstruct
-      @__data.values
+      @data.values
     end
 
     # @param array_of_names_or_nil [Array<Symbol>, nil]
@@ -16,9 +16,7 @@ module DataClass
       end
 
       array_of_names_or_nil.each_with_object({}) do |key, h|
-        if @__data[key]
-          h[key] = @__data[key]
-        end
+        h[key] = @data[key] if @data[key]
       end
     end
 
@@ -34,17 +32,10 @@ module DataClass
 
     # @return [String]
     def inspect
-      members_inspect = members.map do |key|
-        if key =~ /\A[a-zA-Z_][a-zA-Z0-9_]*\z/
-          "#{key}=#{@__data[key].inspect}"
-        else
-          "#{key.inspect}=#{@__data[key].inspect}"
-        end
-      end.join(', ')
       if self.class.name
-        "#<data #{self.class.name} #{members_inspect}>"
+        "#<data #{self.class.name} #{inspect_members}>"
       else
-        "#<data #{members_inspect}>"
+        "#<data #{inspect_members}>"
       end
     end
 
@@ -53,7 +44,7 @@ module DataClass
     end
 
     def to_h(&block)
-      @__data.each_with_object({}) do |key_and_value, h|
+      @data.each_with_object({}) do |key_and_value, h|
         key, value = block ? block.call(*key_and_value) : key_and_value
         h[key] = value
       end.to_h
@@ -71,7 +62,20 @@ module DataClass
     protected
 
     def hash_for_comparation
-      @__hash_for_comparation ||= { type: self.class, data: @__data }
+      @hash_for_comparation ||= { type: self.class, data: @data }
+    end
+
+    private
+
+    # @return [String]
+    def inspect_members
+      @data.map do |key, value|
+        if key =~ /\A[a-zA-Z_][a-zA-Z0-9_]*\z/
+          "#{key}=#{value.inspect}"
+        else
+          "#{key.inspect}=#{value.inspect}"
+        end
+      end.join(', ')
     end
   end
 end

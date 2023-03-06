@@ -18,7 +18,7 @@ module DataClass
         public_class_method :new
         private_class_method :define
 
-        attribute_names.each { |key| define_method(key) { @__data[key] } }
+        attribute_names.each { |key| define_method(key) { @data[key] } }
 
         define_singleton_method(:members) { attribute_names }
 
