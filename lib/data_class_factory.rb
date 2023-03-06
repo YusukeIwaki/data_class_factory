@@ -36,9 +36,9 @@ module DataClassFactory
         definition = DataClass::Definition.new(self.class.members)
         definition.validate(kwargs)
 
-        @__data = {}
+        @data = {}
         kwargs.each do |key, value|
-          @__data[key] = value
+          @data[key] = value
         end
       end
 
