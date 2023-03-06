@@ -12,19 +12,6 @@ module DataClass
     end
     attr_reader :attribute_names
 
-    private def validate_attribute_names(attribute_names)
-      checked = Set.new
-      attribute_names.each do |key|
-        raise TypeError, "#{key} is not a symbol" unless key.is_a?(Symbol)
-        raise ArgumentError, "invalid data member: #{key}" if key.end_with?('=')
-        raise ArgumentError, "duplicate member: #{key}" if checked.include?(key)
-        checked << key
-      end
-    end
-
-    private def validate_attribute_name(key)
-    end
-
     # @param kwargs [Hash<Symbol, Object>]
     def validate(kwargs)
       if attribute_names - kwargs.keys != []
@@ -37,5 +24,20 @@ module DataClass
 
       nil
     end
+
+    private
+
+    def validate_attribute_names(attribute_names)
+      checked = Set.new
+      attribute_names.each do |key|
+        raise TypeError, "#{key} is not a symbol" unless key.is_a?(Symbol)
+        raise ArgumentError, "invalid data member: #{key}" if key.end_with?('=')
+        raise ArgumentError, "duplicate member: #{key}" if checked.include?(key)
+
+        checked << key
+      end
+    end
+
+    def validate_attribute_name(key); end
   end
 end

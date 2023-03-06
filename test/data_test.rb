@@ -3,6 +3,7 @@
 require 'minitest/autorun'
 require 'data_class_factory'
 
+# rubocop:disable Metrics/AbcSize, Metrics/MethodLength
 class DataTest < Minitest::Test
   # https://docs.ruby-lang.org/en/3.2/Data.html
   def test_simplest_example
@@ -51,34 +52,34 @@ class DataTest < Minitest::Test
     # Because some code is shared with Struct, check we don't share unnecessary functionality
     assert_raises(TypeError) { Data.define(:foo, keyword_init: true) }
 
-    assert !Data.define.respond_to?(:define), "Cannot define from defined Data class"
+    assert !Data.define.respond_to?(:define), 'Cannot define from defined Data class'
   end
 
   def test_define_edge_cases
     # non-ascii
     klass = Data.define(:"r\u{e9}sum\u{e9}")
-    o = klass.new(:"r\u{e9}sum\u{e9}" => 1)
+    o = klass.new("r\u{e9}sum\u{e9}": 1)
     assert_equal(1, o.send(:"r\u{e9}sum\u{e9}"))
 
     # junk string
     klass = Data.define(:"a\000")
-    o = klass.new(:"a\000" => 1)
+    o = klass.new("a\000": 1)
     assert_equal(1, o.send(:"a\000"))
 
     # special characters in attribute names
     klass = Data.define(:a, :b?)
     x = Object.new
-    o = klass.new(a: "test", :b? => x)
+    o = klass.new(a: 'test', b?: x)
     assert_same(x, o.b?)
 
     klass = Data.define(:a, :b!)
     x = Object.new
-    o = klass.new(a: "test", :b! => x)
+    o = klass.new(a: 'test', b!: x)
     assert_same(x, o.b!)
 
     assert_raises(ArgumentError) { Data.define(:x=) }
     err = assert_raises(ArgumentError) { Data.define(:x, :x) }
-    assert_match /duplicate member/, err.message
+    assert_match(/duplicate member/, err.message)
   end
 
   def test_define_with_block
@@ -109,3 +110,4 @@ class DataTest < Minitest::Test
     assert_raises(ArgumentError) { klass.new(1, bar: 2) }
   end
 end
+# rubocop:enable Metrics/AbcSize, Metrics/MethodLength
