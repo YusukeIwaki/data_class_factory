@@ -54,6 +54,26 @@ module DataClass
       inspect
     end
 
+    def with(**kwargs)
+      return self if kwargs.empty?
+
+      unknown_keywords = []
+      new_data = @data.dup
+      kwargs.each do |key, value|
+        if @data.key?(key)
+          new_data[key] = value
+        else
+          unknown_keywords << key
+        end
+      end
+
+      unless unknown_keywords.empty?
+        raise ArgumentError, "unknown keywords: #{unknown_keywords.join(', ')}"
+      end
+
+      self.class.new(**new_data)
+    end
+
     # @return [Boolean]
     def ==(other)
       hash_for_comparation == other.hash_for_comparation
