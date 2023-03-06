@@ -19,6 +19,10 @@ require 'data_class/instance_methods'
 #    end
 #
 module DataClassFactory
+  def backport?
+    Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2.0')
+  end
+
   # rubocop:disable Metrics/MethodLength
   def define_factory_class
     Class.new do
@@ -43,7 +47,7 @@ module DataClassFactory
   end
   # rubocop:enable Metrics/MethodLength
 
-  module_function :define_factory_class
+  module_function :backport?, :define_factory_class
 end
 
 require_relative './data'
