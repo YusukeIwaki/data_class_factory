@@ -40,6 +40,39 @@ class DataTest < Minitest::Test
     assert event.weekdays.include?('Sat')
   end
 
+  # https://docs.ruby-lang.org/en/3.2/Data.html#method-i-deconstruct
+  def test_deconstruct
+    klass = Data.define(:amount, :unit)
+
+    distance = klass.new(amount: 10, unit: 'km')
+    assert_equal([10, 'km'], distance.deconstruct)
+
+    # usage
+    case distance
+    in n, 'km' # calls #C underneath
+      assert_equal 10, n
+    else
+      raise 'Something is wrong: #deconstruct'
+    end
+  end
+
+  # https://docs.ruby-lang.org/en/3.2/Data.html#method-i-deconstruct_keys
+  def test_deconstruct_keys
+    klass = Data.define(:amount, :unit)
+
+    distance = klass.new(amount: 10, unit: 'km')
+    assert_equal({:amount=>10, :unit=>"km"}, distance.deconstruct_keys(nil))
+    assert_equal({:amount=>10}, distance.deconstruct_keys([:amount]))
+
+    # usage
+    case distance
+    in amount:, unit: 'km' # calls #deconstruct_keys underneath
+      assert_equal 10, amount
+    else
+      raise 'Something is wrong: #deconstruct_keys'
+    end
+  end
+
   # https://github.com/ruby/ruby/blob/v3_2_0/test/ruby/test_data.rb
   def test_define
     klass = Data.define(:foo, :bar)
@@ -130,6 +163,70 @@ class DataTest < Minitest::Test
 
     # Extra keyword arguments can be dropped in initialize
     assert_equal([[], { foo: 1, bar: 2, baz: 3 }], klass.new(foo: 1, bar: 2, baz: 3).passed)
+  end
+
+  def test_instance_behavior
+    klass = Data.define(:foo, :bar)
+
+    test = klass.new(foo: 1, bar: 2)
+    assert_equal(1, test.foo)
+    assert_equal(2, test.bar)
+    assert_equal(%i[foo bar], test.members)
+    assert_equal(1, test.public_send(:foo))
+    assert_equal(0, test.method(:foo).arity)
+    assert_equal([], test.method(:foo).parameters)
+
+    assert_equal({foo: 1, bar: 2}, test.to_h)
+    assert_equal({"foo"=>"1", "bar"=>"2"}, test.to_h { [_1.to_s, _2.to_s] })
+
+    assert_equal({foo: 1, bar: 2}, test.deconstruct_keys(nil))
+    assert_equal({foo: 1}, test.deconstruct_keys(%i[foo]))
+    assert_equal({foo: 1}, test.deconstruct_keys(%i[foo baz]))
+    assert_raises(TypeError) { test.deconstruct_keys(0) }
+
+    assert_kind_of(Integer, test.hash)
+  end
+
+  def test_inspect
+    klass = Data.define(:a)
+    o = klass.new(a: 1)
+    assert_equal("#<data a=1>", o.inspect)
+
+    Object.const_set(:Foo, klass)
+    assert_equal("#<data Foo a=1>", o.inspect)
+    Object.instance_eval { remove_const(:Foo) }
+
+    klass = Data.define(:@a)
+    o = klass.new(:@a => 1)
+    assert_equal("#<data :@a=1>", o.inspect)
+  end
+
+  def test_equal
+    klass1 = Data.define(:a)
+    klass2 = Data.define(:a)
+    o1 = klass1.new(a: 1)
+    o2 = klass1.new(a: 1)
+    o21 = klass1.new(a: 1.0)
+    o22 = klass1.new(a: 2)
+    o3 = klass2.new(a: 1)
+    assert_equal(o1, o2)
+    assert_equal(o1, o21)
+    assert o1 != o22
+    assert o1 != o3
+  end
+
+  def test_eql
+    klass1 = Data.define(:a)
+    klass2 = Data.define(:a)
+    o1 = klass1.new(a: 1)
+    o2 = klass1.new(a: 1)
+    o21 = klass1.new(a: 1.0)
+    o22 = klass1.new(a: 2)
+    o3 = klass2.new(a: 1)
+    assert_operator(o1, :eql?, o2)
+    assert !o1.eql?(o21)
+    assert !o1.eql?(o22)
+    assert !o1.eql?(o3)
   end
 end
 # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
