@@ -54,6 +54,16 @@ module DataClass
       inspect
     end
 
+    def with(**kwargs)
+      return self if kwargs.empty?
+
+      unknown_keywords = kwargs.keys - @data.keys
+      raise ArgumentError, "unknown keywords: #{unknown_keywords.join(', ')}" unless unknown_keywords.empty?
+
+      new_data = @data.merge(kwargs)
+      self.class.new(**new_data)
+    end
+
     # @return [Boolean]
     def ==(other)
       hash_for_comparation == other.hash_for_comparation
