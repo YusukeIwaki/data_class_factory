@@ -26,13 +26,15 @@ module DataClassFactory
         factory = DataClass::Factory.new(attribute_names)
         factory.create(parent_class: self, &block)
       end
+      private_class_method :new
 
       define_method(:initialize) do |**kwargs|
         definition = DataClass::Definition.new(self.class.members)
         definition.validate(kwargs)
 
+        @__data = {}
         kwargs.each do |key, value|
-          instance_variable_set("@#{key}".to_sym, value)
+          @__data[key] = value
         end
       end
 

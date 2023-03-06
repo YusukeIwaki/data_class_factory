@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require 'set'
+
 module DataClass
   # An internal class for providing validation of `Data.define` and its initializer.
   class Definition
     # @param attribute_names [Array<Symbol>]
     def initialize(attribute_names)
-      @attribute_names = attribute_names
+      validate_attribute_names(attribute_names)
+      @attribute_names = attribute_names.each { |key| validate_attribute_name(key) }
     end
     attr_reader :attribute_names
 
@@ -21,5 +24,20 @@ module DataClass
 
       nil
     end
+
+    private
+
+    def validate_attribute_names(attribute_names)
+      checked = Set.new
+      attribute_names.each do |key|
+        raise TypeError, "#{key} is not a symbol" unless key.is_a?(Symbol)
+        raise ArgumentError, "invalid data member: #{key}" if key.end_with?('=')
+        raise ArgumentError, "duplicate member: #{key}" if checked.include?(key)
+
+        checked << key
+      end
+    end
+
+    def validate_attribute_name(key); end
   end
 end
