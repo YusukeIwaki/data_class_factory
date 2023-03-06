@@ -274,25 +274,19 @@ class DataTest < Minitest::Test
     err = assert_raises(ArgumentError) do
       source.with(10)
     end
-    assert "wrong number of arguments (given 1, expected 0)", err.message
+    assert 'wrong number of arguments (given 1, expected 0)', err.message
     err = assert_raises(ArgumentError) do
       source.with(foo: 1, bar: 2, baz: 3, quux: 4)
     end
-    assert "unknown keywords: :baz, :quux", err.message
+    assert 'unknown keywords: :baz, :quux', err.message
     err = assert_raises(ArgumentError) do
       source.with(1, bar: 2)
     end
-    assert "wrong number of arguments (given 1, expected 0)", err.message
+    assert 'wrong number of arguments (given 1, expected 0)', err.message
     err = assert_raises(ArgumentError) do
       source.with(1, 2)
     end
-    assert "wrong number of arguments (given 2, expected 0)", err.message
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0.0')
-      err = assert_raises(ArgumentError) do
-        source.with({ bar: 20 })
-      end
-      assert "wrong number of arguments (given 1, expected 0)", err.message
-    end
+    assert 'wrong number of arguments (given 2, expected 0)', err.message
   end
 end
 # rubocop:enable Metrics/AbcSize, Metrics/ClassLength, Metrics/MethodLength

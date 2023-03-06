@@ -57,20 +57,10 @@ module DataClass
     def with(**kwargs)
       return self if kwargs.empty?
 
-      unknown_keywords = []
-      new_data = @data.dup
-      kwargs.each do |key, value|
-        if @data.key?(key)
-          new_data[key] = value
-        else
-          unknown_keywords << key
-        end
-      end
+      unknown_keywords = kwargs.keys - @data.keys
+      raise ArgumentError, "unknown keywords: #{unknown_keywords.join(', ')}" unless unknown_keywords.empty?
 
-      unless unknown_keywords.empty?
-        raise ArgumentError, "unknown keywords: #{unknown_keywords.join(', ')}"
-      end
-
+      new_data = @data.merge(kwargs)
       self.class.new(**new_data)
     end
 
