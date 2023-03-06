@@ -102,12 +102,34 @@ class DataTest < Minitest::Test
 
     # Wrong protocol
     assert_raises(ArgumentError) { klass.new(1) }
-    assert_raises(ArgumentError) { klass.new(1, 2) }
+    assert_raises(ArgumentError) { klass.new(1, 2) } if DataClassFactory.backport?
     assert_raises(ArgumentError) { klass.new(1, 2, 3) }
     assert_raises(ArgumentError) { klass.new(foo: 1) }
     assert_raises(ArgumentError) { klass.new(foo: 1, bar: 2, baz: 3) }
     # Could be converted to foo: 1, bar: 2, but too smart is confusing
     assert_raises(ArgumentError) { klass.new(1, bar: 2) }
+  end
+
+  def test_initialize_redefine
+    klass = Data.define(:foo, :bar) do
+      attr_reader :passed
+
+      def initialize(*args, **kwargs)
+        @passed = [args, kwargs]
+        super(foo: 1, bar: 2) # so we can experiment with passing wrong numbers of args
+      end
+    end
+
+    assert_equal([[], { foo: 1, bar: 2 }], klass.new(foo: 1, bar: 2).passed)
+
+    # Positional arguments are converted to keyword ones
+    assert_equal([[], { foo: 1, bar: 2 }], klass.new(1, 2).passed) unless DataClassFactory.backport?
+
+    # Missing arguments can be fixed in initialize
+    assert_equal([[], { foo: 1 }], klass.new(foo: 1).passed)
+
+    # Extra keyword arguments can be dropped in initialize
+    assert_equal([[], { foo: 1, bar: 2, baz: 3 }], klass.new(foo: 1, bar: 2, baz: 3).passed)
   end
 end
 # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
