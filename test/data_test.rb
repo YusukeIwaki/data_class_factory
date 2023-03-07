@@ -211,8 +211,8 @@ class DataTest < Minitest::Test
     o3 = klass2.new(a: 1)
     assert_equal(o1, o2)
     assert_equal(o1, o21)
-    assert o1 != o22
-    assert o1 != o3
+    assert_operator(o1, :!=, o22)
+    assert_operator(o1, :!=, o3)
   end
 
   def test_eql
@@ -287,6 +287,36 @@ class DataTest < Minitest::Test
       source.with(1, 2)
     end
     assert 'wrong number of arguments (given 2, expected 0)', err.message
+  end
+
+  def test_memberless
+    klass = Data.define
+
+    test = klass.new
+
+    assert_equal(klass.new, test)
+    assert_operator(Data.define.new, :!=, test)
+
+    assert_equal('#<data >', test.inspect)
+    assert_equal([], test.members)
+    assert_equal({}, test.to_h)
+  end
+
+  def test_dup
+    klass = Data.define(:foo, :bar)
+    test = klass.new(foo: 1, bar: 2)
+    assert_equal(klass.new(foo: 1, bar: 2), test.dup)
+    assert_predicate(test.dup, :frozen?)
+  end
+
+  Klass = Data.define(:foo, :bar)
+
+  def test_marshal
+    test = Klass.new(foo: 1, bar: 2)
+    loaded = Marshal.load(Marshal.dump(test))
+    assert_equal(test, loaded)
+    assert !test.equal?(loaded)
+    assert_predicate(loaded, :frozen?)
   end
 end
 # rubocop:enable Metrics/AbcSize, Metrics/ClassLength, Metrics/MethodLength

@@ -23,7 +23,6 @@ module DataClassFactory
     Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2.0')
   end
 
-  # rubocop:disable Metrics/MethodLength
   def define_factory_class
     Class.new do
       define_singleton_method(:define) do |*attribute_names, &block|
@@ -32,21 +31,9 @@ module DataClassFactory
       end
       private_class_method :new
 
-      define_method(:initialize) do |**kwargs|
-        definition = DataClass::Definition.new(self.class.members)
-        definition.validate(kwargs)
-
-        @data = {}
-        kwargs.each do |key, value|
-          @data[key] = value
-        end
-      end
-
       include DataClass::InstanceMethods
     end
   end
-  # rubocop:enable Metrics/MethodLength
-
   module_function :backport?, :define_factory_class
 end
 

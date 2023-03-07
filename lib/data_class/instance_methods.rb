@@ -3,6 +3,23 @@
 module DataClass
   # An internal module for providing instance methods for `Data.define`.
   module InstanceMethods
+    def initialize(**kwargs)
+      definition = DataClass::Definition.new(self.class.members)
+      definition.validate(kwargs)
+
+      @data = kwargs.each_with_object({}) do |entry, h|
+        key, value = entry
+        h[key] = value
+      end.freeze
+      freeze
+    end
+
+    def initialize_copy(other)
+      @data = other.instance_variable_get(:@data).dup
+      @data.freeze
+      freeze
+    end
+
     def deconstruct
       @data.values
     end
@@ -39,6 +56,18 @@ module DataClass
       end
     end
 
+    # @return [Hash]
+    def marshal_dump
+      @data
+    end
+
+    # @param dump [Hash]
+    def marshal_load(dump)
+      raise TypeError, 'dump must be a Hash' unless dump.is_a?(Hash)
+
+      initialize(**dump)
+    end
+
     def members
       self.class.members
     end
@@ -72,7 +101,7 @@ module DataClass
     protected
 
     def hash_for_comparation
-      @hash_for_comparation ||= { type: self.class, data: @data }
+      { type: self.class, data: @data }
     end
 
     private
