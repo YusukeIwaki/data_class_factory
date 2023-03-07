@@ -39,6 +39,17 @@ module DataClass
       end
     end
 
+    # @return [Hash]
+    def marshal_dump
+      @data
+    end
+
+    # @param dump [Hash]
+    def marshal_load(dump)
+      raise TypeError, 'dump must be a Hash' unless dump.is_a?(Hash)
+      initialize(**dump)
+    end
+
     def members
       self.class.members
     end
@@ -72,7 +83,7 @@ module DataClass
     protected
 
     def hash_for_comparation
-      @hash_for_comparation ||= { type: self.class, data: @data }
+      { type: self.class, data: @data }
     end
 
     private

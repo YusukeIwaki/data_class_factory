@@ -40,6 +40,14 @@ module DataClassFactory
         kwargs.each do |key, value|
           @data[key] = value
         end
+        @data.freeze
+        freeze
+      end
+
+      define_method(:initialize_copy) do |other|
+        @data = other.instance_variable_get(:@data).dup
+        @data.freeze
+        freeze
       end
 
       include DataClass::InstanceMethods
