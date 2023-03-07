@@ -73,6 +73,36 @@ class DataTest < Minitest::Test
     end
   end
 
+  # rubocop:disable Style/CaseEquality
+  # ref: https://github.com/YusukeIwaki/kt_data_class/blob/0.1.0/spec/kt_data_class_spec.rb#L112
+  def test_equality_with_same_class
+    klass1 = Data.define(:x)
+    klass2 = Data.define(:x)
+    instance1 = klass1.new(x: 1)
+    instance2 = klass1.new(x: 1)
+    instance3 = klass1.new(x: 3)
+    instance4 = klass2.new(x: 1)
+
+    assert !instance1.equal?(instance2)
+    assert instance1 == instance2
+    assert (instance1 <=> instance2).zero?
+    assert instance1.eql?(instance2)
+    assert instance1 === instance2
+
+    assert !instance1.equal?(instance3)
+    assert instance1 != instance3
+    assert (instance1 <=> instance3) != 0
+    assert !instance1.eql?(instance3)
+    assert !(instance1 === instance3)
+
+    assert !instance1.equal?(instance4)
+    assert instance1 != instance4
+    assert (instance1 <=> instance4) != 0
+    assert !instance1.eql?(instance4)
+    assert !(instance1 === instance4)
+  end
+  # rubocop:enable Style/CaseEquality
+
   # https://github.com/ruby/ruby/blob/v3_2_0/test/ruby/test_data.rb
   def test_define
     klass = Data.define(:foo, :bar)
