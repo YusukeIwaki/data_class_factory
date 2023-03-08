@@ -8,7 +8,7 @@ module DataClass
     # @param attribute_names [Array<Symbol>]
     def initialize(attribute_names)
       validate_attribute_names(attribute_names)
-      @attribute_names = attribute_names.each { |key| validate_attribute_name(key) }
+      @attribute_names = attribute_names
     end
     attr_reader :attribute_names
 
@@ -37,7 +37,5 @@ module DataClass
         checked << key
       end
     end
-
-    def validate_attribute_name(key); end
   end
 end
