@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'data_class_factory/version'
+require 'data_class/definer'
 require 'data_class/definition'
-require 'data_class/factory'
 require 'data_class/instance_methods'
 
 # Defining a factory class.
@@ -12,8 +12,9 @@ require 'data_class/instance_methods'
 #      # @param attribute_names [Array<Symbol>]
 #      # @return [Class<Data>]
 #      def self.define(*attribute_names, &block)
-#        factory = DataClass::Factory.new(attribute_names)
-#        factory.create(parent_class: self, &block)
+#        definition = DataClass::Definition.new(attribute_names)
+#        definer = DataClass::Definer.new(definition)
+#        definer.define_class(parent_class: self, &block)
 #      end
 #      ...
 #    end
@@ -26,8 +27,9 @@ module DataClassFactory
   def define_factory_class
     Class.new do
       define_singleton_method(:define) do |*attribute_names, &block|
-        factory = DataClass::Factory.new(attribute_names)
-        factory.create(parent_class: self, &block)
+        definition = DataClass::Definition.new(attribute_names)
+        definer = DataClass::Definer.new(definition)
+        definer.define_class(parent_class: self, &block)
       end
       private_class_method :new
 

@@ -2,15 +2,15 @@
 
 module DataClass
   # An internal class for providing implementation of `Data.define`.
-  class Factory
-    # @param attribute_names [Array<Symbol>]
-    def initialize(attribute_names)
-      @definition = Definition.new(attribute_names)
+  class Definer
+    # @param definition [Definition]
+    def initialize(definition)
+      @definition = definition
     end
 
     # @param parent_class [Data]
     # @return [Class<Data>]
-    def create(parent_class:, &block)
+    def define_class(parent_class:, &block)
       attribute_names = @definition.attribute_names
 
       # defines a subclass of Data.
