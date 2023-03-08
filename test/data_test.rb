@@ -49,6 +49,37 @@ class DataTest < Minitest::Test
     assert event.weekdays.include?('Sat')
   end
 
+  # https://docs.ruby-lang.org/en/3.2/Data.html#method-c-define
+  class HTTPFetcher
+    Response = Data.define(:body)
+    NotFound = Data.define
+
+    def test_ok
+      Response.new(body: 'It works!')
+    end
+
+    def test_not_found
+      NotFound.new
+    end
+  end
+  def test_example_with_pattern_matching
+    fetcher = HTTPFetcher.new
+
+    case fetcher.test_ok
+    in HTTPFetcher::Response(body)
+      assert_equal 'It works!', body
+    in HTTPFetcher::NotFound
+      raise 'Something is wrong'
+    end
+
+    case fetcher.test_not_found
+    in HTTPFetcher::Response(body)
+      raise 'Something is wrong'
+    in HTTPFetcher::NotFound
+      assert true
+    end
+  end
+
   # https://docs.ruby-lang.org/en/3.2/Data.html#method-i-deconstruct
   def test_deconstruct
     klass = Data.define(:amount, :unit)
