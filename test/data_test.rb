@@ -29,6 +29,15 @@ class DataTest < Minitest::Test
     assert klass.new(amount: 3, unit: 'm') < klass.new(amount: 5, unit: 'm')
   end
 
+  def test_simple_example_with_block
+    klass = Data.define(:x, :y) do
+      def norm
+        Math.sqrt(x * x + y * y)
+      end
+    end
+    assert_equal 5, klass.new(x: 3, y: 4).norm
+  end
+
   # https://docs.ruby-lang.org/en/3.2/Data.html
   def test_data_class_has_no_attr_writer
     klass = Data.define(:time, :weekdays)
